@@ -61,12 +61,23 @@
     .mode{flex:0 0 auto;min-width:88px;height:36px;padding:0 14px;border:0;border-radius:999px;background:transparent;color:#777a72;font:400 16px/1 ConsolePixel,monospace;cursor:pointer;transition:background .18s,color .18s,box-shadow .18s}
     .mode:hover{color:#282b26}.mode.active{background:#2e312b;color:#f5f5ef;box-shadow:0 3px 9px rgba(36,39,33,.2)}
     .mobile-note{display:none}
+    .page{height:100dvh;min-height:480px;grid-template-rows:minmax(0,1fr) auto auto}
+    html,body{overflow:auto}
+    .stage{padding-bottom:28px}
+    .control-dock{position:relative;z-index:10;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;width:min(440px,100%);margin:16px auto 12px;padding:6px;border:2px solid #53534d;border-radius:19px;background:linear-gradient(145deg,#77766d,#33342f);box-shadow:0 12px 18px -12px #34352f80,0 2px 3px #31322b66,inset 0 2px 3px #ffffff75}
+    .control-key{position:relative;isolation:isolate;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-width:0;min-height:76px;padding:10px 4px 13px;border:1px solid #b5b4a7;border-radius:13px;background:linear-gradient(135deg,#eeede4,#d9d7c9 55%,#b9b7a9);box-shadow:inset 2px 3px 3px #ffffffb3,inset -3px -5px 5px #77746755,0 3px 2px #17191499;color:#34362f;cursor:pointer;touch-action:none;-webkit-tap-highlight-color:transparent;transition:transform .08s,box-shadow .08s}
+    .control-key:before{content:"";position:absolute;z-index:-1;inset:5px 7px 10px;border-radius:27% 24% 30% 23%;background:linear-gradient(135deg,#bebdaf,#d9d8cb 42%,#f5f4eb);box-shadow:inset 1px 1px 2px #ffffff80}
+    .control-key svg{width:27px;height:27px;fill:currentColor}
+    .control-key span{font:400 14px/1.2 ConsolePixel,monospace}
+    .control-key.is-held,.control-key:active{transform:translateY(3px);box-shadow:inset 1px 2px 5px #77746766,0 0 1px #17191499}
+    .control-key:focus-visible{outline:3px solid #758348;outline-offset:3px}
     @media(max-width:780px){
       :root{--depth:44px}.page{padding:2px 10px 12px}.console{width:min(88vw,45vh)}.shadow{top:calc(50% + min(36vh,310px));width:min(74vw,360px)}
       .status{display:none}.footer{display:flex;justify-content:center;min-height:56px}.footer>span{display:none}.modes{display:flex;justify-content:flex-start;max-width:96vw}.mode{min-width:76px;height:34px;padding:0 10px;font-size:16px}
     }
     @media(max-height:720px) and (min-width:781px){.console{width:min(48vh,355px)}.shadow{top:calc(50% + 285px)}.status{right:2vw}.mode{height:32px}}
-    @media(prefers-reduced-motion:reduce){.console,.shadow{transition:none}}
+    .console{width:min(78vw,48vh,510px,calc((max(480px,100dvh) - 230px)*.681))}
+    @media(prefers-reduced-motion:reduce){.console,.shadow,.control-key{transition:none}}
   </style>
 </head>
 <body>
@@ -88,6 +99,12 @@
         </div>
       </div>
     </section>
+    <nav class="control-dock" aria-label="大按键游戏控制">
+      <button type="button" class="control-key" data-action="left" aria-label="左移，长按连续移动"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12l8-6v4h10v4H11v4z"/></svg><span>左移</span></button>
+      <button type="button" class="control-key" data-action="right" aria-label="右移，长按连续移动"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12l-8-6v4H3v4h10v4z"/></svg><span>右移</span></button>
+      <button type="button" class="control-key" data-action="rotate" aria-label="旋转方块"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 3v7h-7l2.6-2.6A6 6 0 106 15H2.8A9 9 0 1117.7 5.3z"/></svg><span>旋转</span></button>
+      <button type="button" class="control-key" data-action="drop" aria-label="直接落底"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 3h4v8h5l-7 7-7-7h5zM4 20h16v3H4z"/></svg><span>落底</span></button>
+    </nav>
     <aside class="status"><strong>Controls</strong><div><kbd>←</kbd><kbd>→</kbd> move</div><div><kbd>↑</kbd> rotate</div><div><kbd>↓</kbd> soft drop</div><div><kbd>Space</kbd> hard drop</div><div><kbd>P</kbd> pause</div></aside>
     <footer class="footer"><span>Drag shell to rotate 360°</span><div class="modes" aria-label="游戏难度"><button class="mode active" data-mode="free">自由模式</button><button class="mode" data-mode="easy">简单模式</button><button class="mode" data-mode="hard">苦难模式</button><button class="mode" data-mode="region">地域模式</button><button class="mode" data-mode="undead">咋还没死？</button></div><span id="live" aria-live="polite">Press Start</span></footer>
   </main>
@@ -137,7 +154,16 @@
     function hardDrop(){if(paused||over)return;let d=0;while(move(0,1)){d++}score+=d*2}
     function startPause(){if(over||!board){reset();return}paused=!paused;live.textContent=paused?'Paused':'Playing'}
     function action(name){({left:()=>move(-1,0),right:()=>move(1,0),down:()=>{if(move(0,1))score++},rotate,drop:hardDrop,start:startPause}[name]||(()=>{}))()}
-    document.querySelectorAll('[data-action]').forEach(el=>el.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();action(el.dataset.action)}));
+    document.querySelectorAll('[data-action]:not(.control-key)').forEach(el=>el.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();action(el.dataset.action)}));
+    const heldKeys=new Map();
+    function releaseKey(el){const held=heldKeys.get(el);if(held){clearTimeout(held.delay);clearInterval(held.repeat);heldKeys.delete(el)}el.classList.remove('is-held')}
+    function releaseAllKeys(){[...heldKeys.keys()].forEach(releaseKey)}
+    document.querySelectorAll('.control-key').forEach(el=>{
+      el.addEventListener('pointerdown',e=>{if(e.button!==0)return;e.preventDefault();e.stopPropagation();releaseKey(el);el.setPointerCapture(e.pointerId);el.classList.add('is-held');action(el.dataset.action);const held={};heldKeys.set(el,held);if(['left','right'].includes(el.dataset.action))held.delay=setTimeout(()=>{held.repeat=setInterval(()=>action(el.dataset.action),85)},280)});
+      ['pointerup','pointercancel','lostpointercapture'].forEach(event=>el.addEventListener(event,()=>releaseKey(el)));
+      el.addEventListener('click',e=>{if(e.detail===0)action(el.dataset.action)});
+    });
+    addEventListener('blur',releaseAllKeys);document.addEventListener('visibilitychange',()=>{if(document.hidden)releaseAllKeys()});
     document.querySelectorAll('[data-mode]').forEach(el=>el.addEventListener('click',()=>{mode=el.dataset.mode;dropClock=0;document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('active',b===el));live.textContent=el.textContent+(paused?' · Press Start':'')}));
     addEventListener('keydown',e=>{const map={ArrowLeft:'left',ArrowRight:'right',ArrowDown:'down',ArrowUp:'rotate',' ':'drop',z:'rotate',x:'rotate',p:'start',Enter:'start'};if(map[e.key]){e.preventDefault();action(map[e.key])}});
     function cell(x,y,tone,alpha=1){ctx.globalAlpha=alpha;ctx.fillStyle=COLORS[tone]||COLORS[1];ctx.fillRect(OX+x*CELL+1,OY+y*CELL+1,CELL-2,CELL-2);ctx.fillStyle='rgba(170,176,102,.23)';ctx.fillRect(OX+x*CELL+3,OY+y*CELL+3,CELL-6,CELL-6);ctx.globalAlpha=1}
