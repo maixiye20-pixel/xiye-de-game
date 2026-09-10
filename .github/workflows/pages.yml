@@ -18,6 +18,18 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      - name: Restore compact mobile viewport
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('dist/index.html')
+          s = p.read_text(encoding='utf-8')
+          tag = '<link rel="stylesheet" href="assets/mobile-compact.css?v=1">'
+          if tag not in s:
+              s = s.replace('</head>', f'  {tag}\n</head>')
+          p.write_text(s, encoding='utf-8')
+          PY
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
