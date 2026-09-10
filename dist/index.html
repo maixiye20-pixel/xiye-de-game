@@ -112,14 +112,56 @@
     #music-state{font:inherit;color:#788451}.sound-toggle[data-on="false"] #music-state{color:#96988e}
     @media(max-width:780px){.music-menu{top:56px;max-height:calc(100dvh - 150px);overflow-y:auto}.sound-toggle#music-toggle{font-size:10px}.sound-controls{width:60px;top:78px}}
     @media(prefers-reduced-motion:reduce){.music-menu{transition:none;transform:none}}
+    #click-fx{z-index:8}
+    .room-light,.screen-aura{display:none;pointer-events:none}
+    .control-dock{z-index:12}.sound-controls{z-index:22}
+    @media(max-width:780px){
+      .page{--device-width:min(84vw,420px);height:auto;min-height:max(880px,112svh);grid-template-rows:auto minmax(calc(var(--device-width)*1.4687 + 48px),1fr) auto auto;padding:10px 12px calc(26px + env(safe-area-inset-bottom));row-gap:10px}
+      .footer{margin-bottom:0;min-height:48px}.stage{padding-bottom:30px}
+      .control-dock{margin:4px auto 18px;gap:10px}.control-key{height:52px}
+      .sound-controls{position:relative;grid-row:4;top:auto;right:auto;bottom:auto;width:var(--device-width);margin:0 auto;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;align-self:end}
+      .sound-controls .sound-toggle{min-height:46px;flex-direction:row;gap:5px;font-size:12px;padding:8px 4px}
+      .sound-controls .sound-toggle#music-toggle{font-size:11px}.sound-toggle svg{width:14px;height:14px}
+      .sound-controls .motion-note{grid-column:1/-1;max-width:none;min-height:14px;margin:0;text-align:center}
+      .music-menu{top:auto;bottom:calc(100% + 10px);right:0;width:100%;max-height:min(400px,62svh);transform-origin:bottom}
+    }
+    html[data-theme="night"],html[data-theme="night"] body{background:#100f0e;color:#d1c1a5;color-scheme:dark}
+    [data-theme="night"] .page{background:radial-gradient(ellipse 50% 90% at 50% 0%,#433522 0%,#211c15 48%,#100f0e 100%)}
+    [data-theme="night"] .room-light{display:block;position:fixed;z-index:1;top:-3vh;left:50%;width:min(1250px,160vw);height:110vh;transform:translateX(-50%);background:radial-gradient(ellipse 45% 100% at 50% 0%,#ffdb9733 0%,#efb85e15 48%,transparent 85%);clip-path:polygon(47% 0,53% 0,100% 100%,0 100%);filter:blur(16px)}
+    [data-theme="night"] .page:before{content:"";position:fixed;z-index:2;pointer-events:none;top:-10px;left:calc(50% - 45px);width:90px;height:15px;border-radius:50%;background:#fff0ca;box-shadow:0 4px 24px 12px #ffd48555,0 15px 80px 28px #ffc87622}
+    [data-theme="night"] .front:before{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;border-radius:inherit;background:radial-gradient(ellipse 100% 78% at var(--light-x,50%) 0%,#ffe0a733 0%,#4d352b44 45%,#080b10c9 100%);mix-blend-mode:multiply}
+    [data-theme="night"] .front:after{border-color:#544d4033;box-shadow:inset 0 3px 6px #ffe3a952,inset 0 -8px 16px #000a}
+    [data-theme="night"] .back{background-color:#4b4437;background-image:linear-gradient(180deg,#8b7b5d,#34332e 80%);border-color:#554c3a}
+    [data-theme="night"] .shell-slice{background:linear-gradient(180deg,#a09070,#5d574a 35%,#232522 100%);border-color:#73634744;box-shadow:inset 2px 2px 3px #eac89133,inset -4px -4px 10px #0008}
+    [data-theme="night"] .screen-wrap{border-color:#33392a;box-shadow:0 0 0 2px #c1d58350,0 0 14px #c9ec9277,0 0 40px 12px #bad47b33,0 10px 55px 15px #a2bd7520,inset 0 0 12px #b9d27333}
+    [data-theme="night"] #game{filter:brightness(1.35) contrast(1.1) saturate(.8)}
+    [data-theme="night"] .screen-aura{display:block;position:absolute;left:7%;top:3%;width:91%;height:57%;transform:translateZ(calc(var(--depth)/2 + 2px));backface-visibility:hidden;background:radial-gradient(ellipse at 52% 47%,#d4ef9f00 25%,#c6e68e26 39%,#bdd98012 55%,transparent 72%)}
+    [data-theme="night"] .control-key{background:linear-gradient(175deg,#74654d,#3e392f 45%,#22231f);border-color:#a88d6044;color:#e2d4ac;box-shadow:inset 0 2px 2px #ffe0a257,inset 0 -3px 4px #0009,0 6px 12px #0007}
+    [data-theme="night"] .control-key:before{background:linear-gradient(160deg,#6b604b,#34342b);box-shadow:inset 0 1px 2px #f9d69133}
+    [data-theme="night"] .control-key svg{filter:drop-shadow(0 0 3px #ffe5a166)}
+    [data-theme="night"] .control-key.is-held,[data-theme="night"] .control-key:active{color:#fff0c3;box-shadow:inset 0 2px 6px #0009,0 0 14px #ffc97745,0 1px 3px #0008}
+    [data-theme="night"] .control-key.is-held svg{filter:drop-shadow(0 0 5px #ffde92)}
+    [data-theme="night"] .hotspot.is-held{background:#ffd59124;box-shadow:0 0 16px #ffd59166,inset 0 1px 3px #ffe9b4}
+    [data-theme="night"] .dpad button.is-held{background:#ffe8af2e;box-shadow:0 0 10px #e8ffad55}
+    [data-theme="night"] .modes,[data-theme="night"] .sound-toggle{background:#25251feF;border-color:#86735455;color:#c8bea4;box-shadow:inset 0 1px 0 #ffe3a425,0 3px 12px #0004}
+    [data-theme="night"] .mode{color:#c2b69b}[data-theme="night"] .mode.active{background:#a39369;color:#131811;box-shadow:0 0 14px #e8d69533}
+    [data-theme="night"] .sound-toggle[aria-pressed="true"]{color:#f0d69b;border-color:#d7b27188}
+    [data-theme="night"] .music-menu{background:#25261f;border-color:#6c624c;box-shadow:0 12px 26px #0009}
+    [data-theme="night"] .track-option{color:#d3c8a7}[data-theme="night"] .track-option small,[data-theme="night"] .audio-status,[data-theme="night"] .sound-caption,[data-theme="night"] .motion-note{color:#a89f86}
+    [data-theme="night"] .track-option:hover,[data-theme="night"] .track-option[aria-checked="true"]{background:#494a35;color:#f0e5bb}
+    [data-theme="night"] .status,[data-theme="night"] .status strong{color:#baad90}[data-theme="night"] .status kbd{background:#302c24;color:#d5c7a6;border-color:#756346}
+    [data-theme="night"] .shadow:before,[data-theme="night"] .shadow:after{background:#000}
+
   </style>
 </head>
 <body>
   <main class="page">
+    <div class="room-light" aria-hidden="true"></div>
     <h1 class="sr-only">Xiye · 复古俄罗斯方块</h1>
     <section class="stage" id="stage" aria-label="可旋转的复古掌上游戏机">
       <div class="shadow" id="shadow"></div>
       <div class="console" id="console">
+        <div class="screen-aura" aria-hidden="true"></div>
         <div class="body-stack" id="bodyStack" aria-hidden="true"></div>
         <div class="back face" aria-hidden="true"><div class="back-topline"></div><div class="cart-bay"></div><div class="cart-mark">DOT MATRIX · DMG 1989</div><div class="battery-panel"><div class="back-label">MODEL DMG–01<br>6V · MADE IN JAPAN<br>SERIAL 001984</div><div class="latch"></div><div class="back-ribs"></div></div><i class="screw s1"></i><i class="screw s2"></i><i class="screw s3"></i><i class="screw s4"></i></div>
         <div class="face front">
@@ -143,15 +185,15 @@
     </nav>
     <aside class="status"><strong>Controls</strong><div><kbd>←</kbd><kbd>→</kbd> move</div><div><kbd>↑</kbd> rotate</div><div><kbd>↓</kbd> soft drop</div><div><kbd>Space</kbd> start / drop</div><div><kbd>P</kbd> pause</div></aside>
     <footer class="footer"><span>Drag shell · Release to return</span><div class="modes" aria-label="游戏难度"><button class="mode active" data-mode="free">自由模式</button><button class="mode" data-mode="easy">简单模式</button><button class="mode" data-mode="hard">苦难模式</button><button class="mode" data-mode="region">地狱模式</button><button class="mode" data-mode="undead">咋还没死？</button></div><span id="live" aria-live="polite">Press Start</span></footer>
-  </main>
   <aside class="sound-controls" aria-label="声音设置">
     <button type="button" id="music-toggle" class="sound-toggle" aria-expanded="false" aria-controls="music-menu" aria-haspopup="menu" aria-label="选择背景音乐" title="选择背景音乐"><svg viewBox="0 0 18 18" aria-hidden="true"><path d="M6 2h10v3H9v9H6v2H2v-2H0v-3h2V9h4zM13 5h3v7h-3v2H9v-2H7V9h2V7h4z"/></svg><span>MUSIC <small id="music-state">01</small> ▾</span></button>
     <div id="music-menu" class="music-menu" role="menu" aria-label="背景音乐曲目" aria-hidden="true" inert><div id="track-list"></div><button type="button" id="music-mute" class="track-option music-mute" role="menuitem" aria-pressed="true">PAUSE MUSIC</button><p id="audio-status" class="audio-status">原创 8-BIT · 首次操作后播放</p></div>
     <button type="button" id="sfx-toggle" class="sound-toggle" aria-pressed="true" aria-label="关闭操作音效" title="关闭操作音效"><svg viewBox="0 0 18 18" aria-hidden="true"><path d="M0 6h4V4h2V2h2v14H6v-2H4v-2H0zM10 5h2v8h-2zM14 2h2v3h2v8h-2v3h-2v-4h2V6h-2z"/></svg><span>SFX</span></button>
-    <span class="sound-caption">ORIGINAL CHIP RADIO<br>4 TRACKS · INPUT SOUNDS</span>
+    <span class="sound-caption">ORIGINAL CHIP RADIO<br>5 TRACKS · INPUT SOUNDS</span>
   </aside>
+  </main>
   <canvas id="click-fx" aria-hidden="true"></canvas>
-  <script src="assets/experience.js?v=mobile-physics-1"></script>
+  <script src="assets/experience.js?v=night-light-1"></script>
   <script>
   (()=>{
     'use strict';
@@ -175,7 +217,7 @@
       shadow.style.setProperty('--contact-opacity',(.8*Math.exp(-clearance/12)).toFixed(3));
       shadow.style.setProperty('--ambient-opacity',(.25*(1-softness*.7)).toFixed(3));
     }
-    const setRotation=()=>{device.style.setProperty('--turn-y',rotY+'deg');device.style.setProperty('--turn-x',rotX+'deg');updateShadow()};
+    const setRotation=()=>{device.style.setProperty('--light-x',(50-rotY*.55)+'%');device.style.setProperty('--turn-y',rotY+'deg');device.style.setProperty('--turn-x',rotX+'deg');updateShadow()};
     addEventListener('resize',updateShadow,{passive:true});
     stage.addEventListener('pointerdown',e=>{
       if(e.button!==0||dragPointer!==null||!e.target.closest('.console')||e.target.closest('button,.screen-wrap'))return;
