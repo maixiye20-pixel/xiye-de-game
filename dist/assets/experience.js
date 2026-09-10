@@ -131,8 +131,10 @@ window.createExperience = function (shapes, reducedMotion) {
   const {Engine,Bodies,Body,Composite,Events,Sleeping}=Matter;
   const engine=Engine.create({enableSleeping:true,positionIterations:8,velocityIterations:8});
   let width=innerWidth,height=innerHeight,accumulator=0,clock=0,walls=[];
-  const HOLD=12,FADE=1.2,LIMIT=24,H=1000/120;
-  let effectsOn=read('xiye-effects','on')!=='off',lastBurst=-Infinity;
+  const HOLD=12,FADE=1.8,LIMIT=30,H=1000/120;
+  const effectsRevision=read('xiye-effects-revision','0');
+  let effectsOn=effectsRevision==='2'?read('xiye-effects','on')!=='off':true,lastBurst=-Infinity;
+  if(effectsRevision!=='2'){save('xiye-effects','on');save('xiye-effects-revision','2');}
   const fxButton=document.createElement('button');fxButton.id='fx-toggle';fxButton.type='button';fxButton.className='sound-toggle';musicButton.parentElement.append(fxButton);
   function syncEffects(){fxButton.textContent=effectsOn?'掉落：开':'掉落：关';fxButton.setAttribute('aria-pressed',String(effectsOn));fxButton.setAttribute('aria-label',effectsOn?'关闭方块掉落特效':'开启方块掉落特效');}
   fxButton.addEventListener('click',()=>{effectsOn=!effectsOn;save('xiye-effects',effectsOn?'on':'off');if(!effectsOn){for(const p of particles)Composite.remove(engine.world,p.body);particles.length=0;ctx.clearRect(0,0,width,height);}syncEffects();});syncEffects();
@@ -174,14 +176,14 @@ window.createExperience = function (shapes, reducedMotion) {
   }
   addEventListener('resize',resize,{passive:true});resize();
   function burst(x,y){
-    if(!effectsOn||reducedMotion.matches||performance.now()-lastBurst<180)return;lastBurst=performance.now();
-    const count=Math.min(1,LIMIT-particles.length);
+    if(!effectsOn||performance.now()-lastBurst<120)return;lastBurst=performance.now();
+    const count=Math.min(reducedMotion.matches?1:2,LIMIT-particles.length);
     for(let i=0;i<count;i++){
       const shape=shapes[Math.floor(Math.random()*shapes.length)],size=5+Math.floor(Math.random()*2),parts=[];
       shape.forEach((row,r)=>row.forEach((v,c)=>{if(v)parts.push(Bodies.rectangle(c*size,r*size,size,size));}));
       const body=Body.create({parts,friction:.55,frictionStatic:.85,frictionAir:.012,restitution:.26,sleepThreshold:70});
       Body.setPosition(body,{x:Math.max(24,Math.min(width-24,x+(i-count/2)*24)),y:Math.max(24,Math.min(height-24,y))});Body.setAngle(body,(Math.random()-.5)*.5);
-      Body.setVelocity(body,{x:(Math.random()-.5)*4,y:-2-Math.random()*2});Body.setAngularVelocity(body,(Math.random()-.5)*.12);
+      Body.setVelocity(body,{x:(Math.random()-.5)*(reducedMotion.matches?1.5:4),y:reducedMotion.matches?0:-2-Math.random()*2});Body.setAngularVelocity(body,(Math.random()-.5)*(reducedMotion.matches?.035:.12));
       const p={body,landed:null,color:['#798154','#92987d','#6c745e','#898c82'][Math.floor(Math.random()*4)]};body.plugin.particle=p;particles.push(p);Composite.add(engine.world,body);
     }
   }
@@ -192,7 +194,7 @@ window.createExperience = function (shapes, reducedMotion) {
   });
   function drawParticles(dt){
     ctx.clearRect(0,0,width,height);if(document.hidden)return;
-    if(!effectsOn||reducedMotion.matches){for(const p of particles)Composite.remove(engine.world,p.body);particles.length=0;return;}
+    if(!effectsOn){for(const p of particles)Composite.remove(engine.world,p.body);particles.length=0;return;}
     const elapsed=Math.min(50,Math.max(0,dt));clock+=elapsed/1000;accumulator+=elapsed;
     if(motionOn&&performance.now()-lastSensor>1500){targetX=0;targetY=1;}
     while(accumulator>=H){
@@ -209,13 +211,17 @@ window.createExperience = function (shapes, reducedMotion) {
       }ctx.restore();
     }
     if(removed)for(const p of particles)Sleeping.set(p.body,false);
-    // Clear visual overlays from gameplay targets; the rigid bodies remain in the world.
-    document.querySelectorAll('.control-dock,.sound-controls,.screen-wrap,.modes').forEach(el=>{const r=el.getBoundingClientRect();ctx.clearRect(r.left-4,r.top-4,r.width+8,r.height+8);});
     canvas.dataset.particles=String(particles.length);canvas.dataset.settled=String(particles.filter(p=>p.body.isSleeping).length);
   }
   document.addEventListener('pointerdown',e=>{
-    if(e.button!==0)return;unlockAudio();if(e.target.closest('.sound-controls'))return;
-    if(e.target.closest('button')){burst(e.clientX,e.clientY);if(e.target.closest('[data-mode]'))playSfx('mode','menu');}
+    if(e.button!==0)return;unlockAudio();
+    const button=e.target.closest('button');
+    if(button){
+      burst(e.clientX,e.clientY);
+      button.classList.remove('fx-press');void button.offsetWidth;button.classList.add('fx-press');
+      setTimeout(()=>button.classList.remove('fx-press'),360);
+      if(e.target.closest('[data-mode]'))playSfx('mode','menu');
+    }
     else taps.set(e.pointerId,{x:e.clientX,y:e.clientY});
   },{capture:true});
   document.addEventListener('pointerup',e=>{const p=taps.get(e.pointerId);taps.delete(e.pointerId);if(p&&Math.hypot(p.x-e.clientX,p.y-e.clientY)<8){burst(e.clientX,e.clientY);playSfx('tap',e.target.closest('.console')?'shell':'background');}},{capture:true});
