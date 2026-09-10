@@ -96,10 +96,24 @@
     .sound-caption{font:10px/1.5 Arial,sans-serif;letter-spacing:.04em;color:#85877e}
     @media(max-width:780px){.sound-controls{top:78px;right:8px;width:54px;gap:6px}.sound-toggle{justify-content:center;flex-direction:column;gap:4px;padding:7px 2px;font-size:11px;min-height:48px}.sound-caption{display:none}}
     @media(max-height:600px) and (min-width:781px){.sound-controls{top:auto;bottom:16px}.sound-caption{display:none}}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
+    .sound-controls{isolation:isolate;top:max(86px,calc(50% - 110px))}
+    .music-menu{position:absolute;top:50px;right:0;width:260px;max-width:calc(100vw - 24px);padding:8px;border:1px solid #d4d6cb;border-radius:12px;background:#fafbf6;box-shadow:0 12px 26px #292d2020;transform:translateY(-10px) scaleY(.94);transform-origin:top;opacity:0;visibility:hidden;pointer-events:none;transition:transform .32s cubic-bezier(.22,1.35,.38,1),opacity .16s,visibility .32s;z-index:4}
+    .music-menu.is-open{transform:translateY(0) scaleY(1);opacity:1;visibility:visible;pointer-events:auto}
+    .track-option{display:block;width:100%;padding:12px 10px;border:0;border-radius:6px;background:transparent;color:#575e48;text-align:left;cursor:pointer;font:16px ConsolePixel,monospace;min-height:44px;touch-action:manipulation}
+    .track-option small{display:block;margin-top:5px;font:12px/1.5 Arial,sans-serif;color:#777d6c}
+    .track-option[aria-checked="true"]{background:#e8ebdd;color:#303a21;box-shadow:inset 3px 0 #788451}
+    .track-option:hover{background:#edf0e5}.track-option:focus-visible{outline:2px solid #758348;outline-offset:-2px}
+    .music-mute{margin-top:6px;border-top:1px solid #dde0d4;border-radius:0;color:#70785d}
+    .audio-status{margin:8px 10px 4px;font:11px/1.5 Arial,sans-serif;color:#818875}
+    #music-state{font:inherit;color:#788451}.sound-toggle[data-on="false"] #music-state{color:#96988e}
+    @media(max-width:780px){.music-menu{top:56px;max-height:calc(100dvh - 150px);overflow-y:auto}.sound-toggle#music-toggle{font-size:10px}.sound-controls{width:60px;top:78px}}
+    @media(prefers-reduced-motion:reduce){.music-menu{transition:none;transform:none}}
   </style>
 </head>
 <body>
   <main class="page">
+    <h1 class="sr-only">Xiye · 复古俄罗斯方块</h1>
     <section class="stage" id="stage" aria-label="可旋转的复古掌上游戏机">
       <div class="shadow" id="shadow"></div>
       <div class="console" id="console">
@@ -125,14 +139,16 @@
       <button type="button" class="control-key" data-action="drop" aria-label="直接落底" title="直接落底"><svg viewBox="0 0 21 21" aria-hidden="true"><path d="M9 0h3v6h6v3h-3v3h-3v3H9v-3H6V9H3V6h6zM3 18h15v3H3z"/></svg></button>
     </nav>
     <aside class="status"><strong>Controls</strong><div><kbd>←</kbd><kbd>→</kbd> move</div><div><kbd>↑</kbd> rotate</div><div><kbd>↓</kbd> soft drop</div><div><kbd>Space</kbd> start / drop</div><div><kbd>P</kbd> pause</div></aside>
-    <footer class="footer"><span>Drag shell · Release to return</span><div class="modes" aria-label="游戏难度"><button class="mode active" data-mode="free">自由模式</button><button class="mode" data-mode="easy">简单模式</button><button class="mode" data-mode="hard">苦难模式</button><button class="mode" data-mode="region">地域模式</button><button class="mode" data-mode="undead">咋还没死？</button></div><span id="live" aria-live="polite">Press Start</span></footer>
+    <footer class="footer"><span>Drag shell · Release to return</span><div class="modes" aria-label="游戏难度"><button class="mode active" data-mode="free">自由模式</button><button class="mode" data-mode="easy">简单模式</button><button class="mode" data-mode="hard">苦难模式</button><button class="mode" data-mode="region">地狱模式</button><button class="mode" data-mode="undead">咋还没死？</button></div><span id="live" aria-live="polite">Press Start</span></footer>
   </main>
   <aside class="sound-controls" aria-label="声音设置">
-    <button type="button" id="music-toggle" class="sound-toggle" aria-pressed="true" aria-label="关闭背景音乐" title="关闭背景音乐（首次操作后播放）"><svg viewBox="0 0 18 18" aria-hidden="true"><path d="M6 2h10v3H9v9H6v2H2v-2H0v-3h2V9h4zM13 5h3v7h-3v2H9v-2H7V9h2V7h4z"/></svg><span>MUSIC</span></button>
+    <button type="button" id="music-toggle" class="sound-toggle" aria-expanded="false" aria-controls="music-menu" aria-haspopup="menu" aria-label="选择背景音乐" title="选择背景音乐"><svg viewBox="0 0 18 18" aria-hidden="true"><path d="M6 2h10v3H9v9H6v2H2v-2H0v-3h2V9h4zM13 5h3v7h-3v2H9v-2H7V9h2V7h4z"/></svg><span>MUSIC <small id="music-state">01</small> ▾</span></button>
+    <div id="music-menu" class="music-menu" role="menu" aria-label="背景音乐曲目" aria-hidden="true" inert><div id="track-list"></div><button type="button" id="music-mute" class="track-option music-mute" role="menuitem" aria-pressed="true">PAUSE MUSIC</button><p id="audio-status" class="audio-status">原创 8-BIT · 首次操作后播放</p></div>
     <button type="button" id="sfx-toggle" class="sound-toggle" aria-pressed="true" aria-label="关闭操作音效" title="关闭操作音效"><svg viewBox="0 0 18 18" aria-hidden="true"><path d="M0 6h4V4h2V2h2v14H6v-2H4v-2H0zM10 5h2v8h-2zM14 2h2v3h2v8h-2v3h-2v-4h2V6h-2z"/></svg><span>SFX</span></button>
-    <span class="sound-caption">FIELD NOTES · 8-BIT<br>首次操作后播放 · 原创循环</span>
+    <span class="sound-caption">ORIGINAL CHIP RADIO<br>4 TRACKS · INPUT SOUNDS</span>
   </aside>
   <canvas id="click-fx" aria-hidden="true"></canvas>
+  <script src="assets/experience.js"></script>
   <script>
   (()=>{
     'use strict';
@@ -140,7 +156,7 @@
     function buildShell(){stack.replaceChildren();const depth=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--depth'))||58,count=Math.ceil(depth);for(let i=0;i<=count;i++){const slice=document.createElement('i'),t=i/count,z=-depth/2+t*depth,scale=.982+.018*Math.sin(Math.PI*t);slice.className='shell-slice';slice.style.transform=`translateZ(${z}px) scale(${scale})`;stack.appendChild(slice)}}
     buildShell();addEventListener('resize',buildShell,{passive:true});
     const reducedMotion=matchMedia("(prefers-reduced-motion: reduce)");
-    let rotY=-7,rotX=-3,dragging=false,dragPointer=null,lastX=0,lastY=0,startX=0,startY=0,returning=false;
+    let velocityX=0,velocityY=0,rotY=-7,rotX=-3,dragging=false,dragPointer=null,lastX=0,lastY=0,startX=0,startY=0,returning=false;
     function updateShadow(){
       const x=rotX*Math.PI/180,y=rotY*Math.PI/180,w=device.offsetWidth,h=device.offsetHeight;
       const depth=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--depth'))||58;
@@ -172,15 +188,18 @@
     });
     function stopRotation(e){
       if(dragPointer===null||(e&&e.pointerId!==dragPointer))return;
-      const id=dragPointer;dragPointer=null;dragging=false;returning=true;stage.classList.remove('is-dragging');
+      const id=dragPointer;dragPointer=null;dragging=false;returning=true;velocityX=0;velocityY=0;stage.classList.remove('is-dragging');
       if(stage.hasPointerCapture(id))stage.releasePointerCapture(id);
       if(reducedMotion.matches){rotY=-7;rotX=-3;returning=false;setRotation()}
     }
     ['pointerup','pointercancel','lostpointercapture'].forEach(name=>stage.addEventListener(name,stopRotation));
     function settleRotation(dt){
-      if(!returning)return;const blend=1-Math.exp(-12*dt/1000);
-      rotY+=(-7-rotY)*blend;rotX+=(-3-rotX)*blend;
-      if(Math.abs(rotY+7)+Math.abs(rotX+3)<.04){rotY=-7;rotX=-3;returning=false}setRotation();
+      if(!returning)return;
+      if(reducedMotion.matches){rotY=-7;rotX=-3;returning=false;setRotation();return}
+      const steps=Math.max(1,Math.ceil(dt/8)),h=dt/1000/steps;
+      for(let i=0;i<steps;i++){velocityY+=((-7-rotY)*155-velocityY*19)*h;velocityX+=((-3-rotX)*155-velocityX*19)*h;rotY+=velocityY*h;rotX+=velocityX*h;}
+      if(Math.abs(rotY+7)+Math.abs(rotX+3)+Math.abs(velocityY)+Math.abs(velocityX)<.04){rotY=-7;rotX=-3;returning=false}
+      setRotation();
     }
     setRotation();
 
@@ -188,115 +207,7 @@
     const COLS=10,ROWS=18,CELL=10,OX=10,OY=11;
     const COLORS=['#aab066','#26331f','#37452a','#4b5934','#5d6740'];
     const SHAPES=[[[1,1,1,1]],[[1,1],[1,1]],[[0,1,0],[1,1,1]],[[1,0,0],[1,1,1]],[[0,0,1],[1,1,1]],[[0,1,1],[1,1,0]],[[1,1,0],[0,1,1]]];
-    // Original 16-bar chip tune, "Field Notes": sparse bell-like pulse lead,
-    // triangle bass and quiet broken chords. All notes are synthesized locally.
-    const musicButton=document.getElementById('music-toggle'),sfxButton=document.getElementById('sfx-toggle');
-    const loadPref=(key)=>{try{return localStorage.getItem(key)!=='off'}catch{return true}};
-    let musicOn=loadPref('xiye-music'),sfxOn=loadPref('xiye-sfx'),audio=null,musicBus=null,sfxBus=null,master=null,audioReady=false,nextNote=0,musicStep=0,lastSfx=-1,pendingSfx=null;
-    const voices=new Set(),eighth=60/80/2;
-    const melody=[
-      [74,null,null,81,78,null,76,null],[null,69,null,74,null,null,76,null],
-      [78,null,81,null,85,null,null,81],[78,null,76,null,null,null,null,null],
-      [74,null,null,78,81,null,83,null],[81,null,78,null,76,null,null,69],
-      [71,null,74,null,null,78,76,null],[74,null,null,null,null,null,null,null],
-      [86,null,null,81,83,null,78,null],[81,null,76,null,null,74,null,null],
-      [78,null,85,null,83,null,81,null],[76,null,null,73,74,null,null,null],
-      [71,null,78,null,81,null,78,76],[74,null,null,69,71,null,74,null],
-      [76,null,78,null,81,null,76,null],[74,null,null,null,null,null,null,null]
-    ];
-    const chords=[[50,57,62,66],[47,54,59,62],[43,50,57,62],[45,52,59,64]];
-    function syncSoundButtons(){
-      [[musicButton,musicOn,'背景音乐'],[sfxButton,sfxOn,'操作音效']].forEach(([button,on,label])=>{
-        button.setAttribute('aria-pressed',String(on));button.setAttribute('aria-label',(on?'关闭':'开启')+label);button.title=(on?'关闭':'开启')+label;
-      });
-    }
-    function savePref(key,on){try{localStorage.setItem(key,on?'on':'off')}catch{}}
-    function tone(note,when,duration,type,gain,bus,slide=null){
-      if(!audio||!bus||voices.size>64)return;
-      const osc=audio.createOscillator(),amp=audio.createGain();osc.type=type;
-      osc.frequency.setValueAtTime(440*Math.pow(2,(note-69)/12),when);
-      if(slide!==null)osc.frequency.exponentialRampToValueAtTime(440*Math.pow(2,(slide-69)/12),when+duration);
-      amp.gain.setValueAtTime(0,when);amp.gain.linearRampToValueAtTime(gain,when+.006);
-      amp.gain.exponentialRampToValueAtTime(.0001,when+duration);
-      osc.connect(amp);amp.connect(bus);voices.add(osc);
-      osc.onended=()=>{voices.delete(osc);osc.disconnect();amp.disconnect()};osc.start(when);osc.stop(when+duration+.02);
-    }
-    function unlockAudio(){
-      if(document.hidden||(!musicOn&&!sfxOn))return;
-      try{
-        if(!audio){
-          const Audio=window.AudioContext||window.webkitAudioContext;if(!Audio)return;
-          audio=new Audio();master=audio.createGain();musicBus=audio.createGain();sfxBus=audio.createGain();
-          master.gain.value=.5;musicBus.gain.value=musicOn ? .52 : 0;sfxBus.gain.value=sfxOn ? .7 : 0;
-          musicBus.connect(master);sfxBus.connect(master);master.connect(audio.destination);
-        }
-        if(audio.state!=='running'){
-          if(audioReady)return;audioReady=true;
-          audio.resume().then(()=>{audioReady=false;nextNote=audio.currentTime+.06;master.gain.setTargetAtTime(.5,audio.currentTime,.02);if(pendingSfx){const sound=pendingSfx;pendingSfx=null;playSfx(sound)}}).catch(()=>{audioReady=false});
-        }else{master.gain.setTargetAtTime(.5,audio.currentTime,.02);if(!nextNote)nextNote=audio.currentTime+.06}
-      }catch{audioReady=false}
-    }
-    function silenceAudio(){
-      pendingSfx=null;if(!audio)return;master.gain.setValueAtTime(0,audio.currentTime);
-      voices.forEach(osc=>{try{osc.stop()}catch{}});voices.clear();nextNote=0;
-      audio.suspend().catch(()=>{});
-    }
-    function scheduleMusic(){
-      if(!audio||audio.state!=='running'||!musicOn||document.hidden)return;
-      const now=audio.currentTime;if(nextNote<now-.2)nextNote=now+.04;
-      while(nextNote<now+.16){
-        const bar=Math.floor(musicStep/8)%16,beat=musicStep%8,chord=chords[Math.floor(bar/2)%4],note=melody[bar][beat];
-        if(note!==null){tone(note,nextNote,.55,'square',.075,musicBus);tone(note+12,nextNote+.1,.32,'triangle',.025,musicBus)}
-        if(beat===0||beat===4)tone(chord[0],nextNote,1.1,'triangle',.22,musicBus);
-        if(beat%2===0)tone(chord[1+(beat/2)%3]+12,nextNote,.42,'triangle',.065,musicBus);
-        musicStep=(musicStep+1)%128;nextNote+=eighth;
-      }
-    }
-    function playSfx(kind='tap'){
-      if(!sfxOn||document.hidden)return;if(audio&&audio.state!=='running'&&audioReady){pendingSfx=kind;return}if(!audio||audio.state!=='running')return;
-      const now=audio.currentTime;if(now-lastSfx<.035&&kind!=='clear')return;lastSfx=now;
-      if(kind==='clear'){[74,78,81,86].forEach((n,i)=>tone(n,now+i*.075,.19,'square',.10,sfxBus));return}
-      if(kind==='drop'){tone(64,now,.13,'triangle',.25,sfxBus,40);tone(86,now,.035,'square',.07,sfxBus);return}
-      if(kind==='rotate'){tone(74,now,.07,'square',.09,sfxBus);tone(81,now+.045,.1,'square',.075,sfxBus);return}
-      if(kind==='start'){[62,69,74].forEach((n,i)=>tone(n,now+i*.06,.16,'triangle',.16,sfxBus));return}
-      tone(kind==='down'?55:kind==='tap'?83:62,now,.045,'square',kind==='tap' ? .055 : .04,sfxBus);
-    }
-    musicButton.addEventListener('click',()=>{
-      musicOn=!musicOn;savePref('xiye-music',musicOn);syncSoundButtons();
-      if(musicBus)musicBus.gain.setTargetAtTime(musicOn ? .52 : 0,audio.currentTime,.015);
-      if(musicOn){nextNote=0;unlockAudio()}
-    });
-    sfxButton.addEventListener('click',()=>{
-      sfxOn=!sfxOn;savePref('xiye-sfx',sfxOn);syncSoundButtons();
-      if(sfxBus)sfxBus.gain.setTargetAtTime(sfxOn ? .7 : 0,audio.currentTime,.015);
-      if(sfxOn){unlockAudio();playSfx('tap')}
-    });
-    syncSoundButtons();
-    const fxCanvas=document.getElementById('click-fx'),fx=fxCanvas.getContext('2d'),particles=[],pendingTaps=new Map();
-    function resizeFx(){const scale=Math.min(devicePixelRatio||1,2);fxCanvas.width=Math.round(innerWidth*scale);fxCanvas.height=Math.round(innerHeight*scale);fx.setTransform(scale,0,0,scale,0,0)}
-    addEventListener('resize',resizeFx,{passive:true});resizeFx();
-    function burst(x,y){
-      if(reducedMotion.matches)return;
-      const count=3+Math.floor(Math.random()*3);
-      for(let i=0;i<count;i++)particles.push({x,y,vx:(Math.random()-.5)*150,vy:-90-Math.random()*100,age:0,life:.65+Math.random()*.3,spin:(Math.random()-.5)*5,angle:0,size:3+Math.random()*2,shape:SHAPES[Math.floor(Math.random()*SHAPES.length)],color:['#798154','#92987d','#6c745e','#898c82'][Math.floor(Math.random()*4)]});
-      if(particles.length>72)particles.splice(0,particles.length-72);
-    }
-    function drawParticles(dt){
-      fx.clearRect(0,0,innerWidth,innerHeight);const seconds=dt/1000;
-      for(let i=particles.length-1;i>=0;i--){const p=particles[i];p.age+=seconds;if(p.age>=p.life||reducedMotion.matches){particles.splice(i,1);continue}
-        p.vy+=330*seconds;p.vx*=Math.exp(-1.6*seconds);p.x+=p.vx*seconds;p.y+=p.vy*seconds;p.angle+=p.spin*seconds;
-        fx.save();fx.translate(p.x,p.y);fx.rotate(p.angle);fx.globalAlpha=.6*Math.pow(1-p.age/p.life,.6);fx.fillStyle=p.color;
-        p.shape.forEach((row,r)=>row.forEach((v,c)=>{if(v)fx.fillRect((c-p.shape[0].length/2)*p.size,(r-p.shape.length/2)*p.size,p.size-1,p.size-1)}));fx.restore();
-      }
-    }
-    document.addEventListener('pointerdown',e=>{
-      if(e.button!==0||e.target.closest('.sound-controls'))return;unlockAudio();
-      if(e.target.closest('button')){burst(e.clientX,e.clientY);if(!e.target.closest('[data-action]'))playSfx('tap')}
-      else pendingTaps.set(e.pointerId,{x:e.clientX,y:e.clientY});
-    },{capture:true});
-    document.addEventListener('pointerup',e=>{const p=pendingTaps.get(e.pointerId);pendingTaps.delete(e.pointerId);if(p&&Math.hypot(p.x-e.clientX,p.y-e.clientY)<8){burst(e.clientX,e.clientY);playSfx('tap')}},{capture:true});
-    document.addEventListener('pointercancel',e=>pendingTaps.delete(e.pointerId),{capture:true});
-    addEventListener('blur',()=>{pendingTaps.clear();particles.length=0});
+    const {unlockAudio,silenceAudio,scheduleMusic,playSfx,burst,drawParticles}=createExperience(SHAPES,reducedMotion);
 
     let board,piece,next,score,lines,level,paused=true,over=false,last=0,dropClock=0,mode='free',hasStarted=false;
     const empty=()=>Array.from({length:ROWS},()=>Array(COLS).fill(0));
@@ -310,7 +221,7 @@
     function rotate(){if(paused||over)return;const s=piece.shape[0].map((_,i)=>piece.shape.map(row=>row[i]).reverse());for(const kick of [0,-1,1,-2,2])if(!collides(piece.x+kick,piece.y,s)){piece.shape=s;piece.x+=kick;break}}
     function hardDrop(){if(paused||over)return;let d=0;while(move(0,1)){d++}score+=d*2}
     function startPause(){if(over||!hasStarted){reset();return}paused=!paused;dropClock=0;if(paused)releaseAllInputs();live.textContent=paused?'Paused':'Playing'}
-    function action(name){unlockAudio();if(name==='drop'&&(paused||over)){startPause();playSfx('start');return}if(name==='start'||(!paused&&!over))playSfx(name);({left:()=>move(-1,0),right:()=>move(1,0),down:()=>{if(move(0,1))score++},rotate,drop:hardDrop,start:startPause}[name]||(()=>{}))()}
+    function action(name,region='shell'){unlockAudio();if(name==='drop'&&(paused||over)){startPause();playSfx('start',region);return}if(name==='start'||(!paused&&!over))playSfx(name,region);({left:()=>move(-1,0),right:()=>move(1,0),down:()=>{if(move(0,1))score++},rotate,drop:hardDrop,start:startPause}[name]||(()=>{}))()}
     // One input record per pointer/key. Native keyboard repeat never drives the game.
     const heldInputs=new Map(), actionButtons=[...document.querySelectorAll('[data-action]')];
     const repeatTiming={left:[240,70],right:[240,70],down:[120,45]};
@@ -326,8 +237,8 @@
     function releaseAllInputs(){[...heldInputs.keys()].forEach(releaseInput)}
     function pressInput(id,name,el=null,pointerId=null){
       if(heldInputs.has(id))return;
-      heldInputs.set(id,{name,el,pointerId,elapsed:0,nextRepeat:repeatTiming[name]?.[0]??Infinity,order:performance.now()});
-      refreshButtons();action(name);
+      heldInputs.set(id,{name,el,pointerId,region:el?.closest('.control-dock')||!el?'dock':'shell',elapsed:0,nextRepeat:repeatTiming[name]?.[0]??Infinity,order:performance.now()});
+      refreshButtons();action(name,el?.closest('.control-dock')||!el?'dock':'shell');
     }
     function repeatInputs(dt){
       if(paused||over)return;
@@ -340,7 +251,7 @@
         if((input.name==='left'||input.name==='right')&&input!==horizontal){input.nextRepeat=input.elapsed+timing[1];continue}
         if(input.elapsed>=input.nextRepeat){
           input.nextRepeat=input.elapsed+timing[1];
-          if(!fired.has(input.name)){action(input.name);fired.add(input.name)}
+          if(!fired.has(input.name)){action(input.name,input.region);fired.add(input.name)}
           if(over||paused)break;
         }
       }
@@ -357,7 +268,7 @@
       });
       ['pointerup','pointercancel','lostpointercapture'].forEach(name=>el.addEventListener(name,e=>releaseInput('pointer:'+e.pointerId)));
       el.addEventListener('contextmenu',e=>e.preventDefault());
-      el.addEventListener('click',e=>{if(e.detail===0)action(el.dataset.action)});
+      el.addEventListener('click',e=>{if(e.detail===0){const r=el.getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height/2);action(el.dataset.action,el.closest('.control-dock')?'dock':'shell')}});
     });
     function suspend(){silenceAudio();releaseAllInputs();stopRotation();dropClock=0;if(!paused&&!over){paused=true;live.textContent='Paused · Press Start to resume'}}
     addEventListener('blur',suspend);document.addEventListener('visibilitychange',()=>{if(document.hidden)suspend()});
@@ -365,10 +276,11 @@
     const keyActions={ArrowLeft:'left',ArrowRight:'right',ArrowDown:'down',ArrowUp:'rotate',Space:'drop',KeyZ:'rotate',KeyX:'rotate',KeyP:'start',Enter:'start'};
     addEventListener('keydown',e=>{
       if(e.target.closest?.('input,textarea,select,[contenteditable="true"]'))return;
+      if(e.target.closest?.('.sound-controls'))return;
       if(e.target.closest?.('button')&&e.code==='Enter'){if(e.repeat)e.preventDefault();return}
       const name=keyActions[e.code]||(e.key===' '?'drop':null);if(!name)return;e.preventDefault();if(!e.repeat){pressInput('key:'+(e.code||'Space'),name);const button=actionButtons.find(b=>b.dataset.action===name&&b.classList.contains('control-key'));if(button){const r=button.getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height/2)}}
     });
-    addEventListener('keyup',e=>{if(keyActions[e.code]||e.key===' '){releaseInput('key:'+(e.code||'Space'));e.preventDefault()}});
+    addEventListener('keyup',e=>{if(!e.target.closest?.('.sound-controls')&&(keyActions[e.code]||e.key===' ')){releaseInput('key:'+(e.code||'Space'));e.preventDefault()}});
     function cell(x,y,tone,alpha=1){ctx.globalAlpha=alpha;ctx.fillStyle=COLORS[tone]||COLORS[1];ctx.fillRect(OX+x*CELL+1,OY+y*CELL+1,CELL-2,CELL-2);ctx.fillStyle='rgba(170,176,102,.23)';ctx.fillRect(OX+x*CELL+3,OY+y*CELL+3,CELL-6,CELL-6);ctx.globalAlpha=1}
     function ghostCell(x,y){ctx.strokeStyle='rgba(38,51,31,.32)';ctx.lineWidth=1;ctx.strokeRect(OX+x*CELL+1.5,OY+y*CELL+1.5,CELL-3,CELL-3)}
     function text(t,x,y,size=9,align='left'){ctx.fillStyle='#26331f';ctx.font=`bold ${size}px monospace`;ctx.textAlign=align;ctx.fillText(t,x,y)}
