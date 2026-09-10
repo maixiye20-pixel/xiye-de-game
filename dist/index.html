@@ -112,9 +112,11 @@
     #music-state{font:inherit;color:#788451}.sound-toggle[data-on="false"] #music-state{color:#96988e}
     @media(max-width:780px){.music-menu{top:56px;max-height:calc(100dvh - 150px);overflow-y:auto}.sound-toggle#music-toggle{font-size:10px}.sound-controls{width:60px;top:78px}}
     @media(prefers-reduced-motion:reduce){.music-menu{transition:none;transform:none}}
-    #click-fx{z-index:8}
+    #click-fx{z-index:18}
     .room-light,.screen-aura{display:none;pointer-events:none}
     .control-dock{z-index:12}.sound-controls{z-index:22}
+    button.fx-press{animation:button-impact .34s cubic-bezier(.2,.85,.25,1)}
+    @keyframes button-impact{0%{filter:brightness(1);transform:translateY(0) scale(1)}35%{filter:brightness(1.14);transform:translateY(2px) scale(.96)}100%{filter:brightness(1);transform:translateY(0) scale(1)}}
     @media(max-width:780px){
       .page{--device-width:min(84vw,420px);height:auto;min-height:max(880px,112svh);grid-template-rows:auto minmax(calc(var(--device-width)*1.4687 + 48px),1fr) auto auto;padding:10px 12px calc(26px + env(safe-area-inset-bottom));row-gap:10px}
       .footer{margin-bottom:0;min-height:48px}.stage{padding-bottom:30px}
@@ -126,9 +128,16 @@
       .music-menu{top:auto;bottom:calc(100% + 10px);right:0;width:100%;max-height:min(400px,62svh);transform-origin:bottom}
     }
     html[data-theme="night"],html[data-theme="night"] body{background:#100f0e;color:#d1c1a5;color-scheme:dark}
-    [data-theme="night"] .page{background:radial-gradient(ellipse 50% 90% at 50% 0%,#433522 0%,#211c15 48%,#100f0e 100%)}
-    [data-theme="night"] .room-light{display:block;position:fixed;z-index:1;top:-3vh;left:50%;width:min(1250px,160vw);height:110vh;transform:translateX(-50%);background:radial-gradient(ellipse 45% 100% at 50% 0%,#ffdb9733 0%,#efb85e15 48%,transparent 85%);clip-path:polygon(47% 0,53% 0,100% 100%,0 100%);filter:blur(16px)}
-    [data-theme="night"] .page:before{content:"";position:fixed;z-index:2;pointer-events:none;top:-10px;left:calc(50% - 45px);width:90px;height:15px;border-radius:50%;background:#fff0ca;box-shadow:0 4px 24px 12px #ffd48555,0 15px 80px 28px #ffc87622}
+    [data-theme="night"] .page{background:radial-gradient(ellipse 54% 105% at 50% -7%,#4a3924 0%,#241e16 43%,#100f0e 88%)}
+    [data-theme="night"] .room-light{display:block;position:fixed;z-index:1;inset:-8vh -25vw -5vh;transform:none;background:radial-gradient(ellipse 10% 8% at 50% 5%,#fff1ca9c 0%,#ffd58e4d 30%,transparent 75%),radial-gradient(ellipse 31% 105% at 50% -5%,#ffd89430 0%,#efb85e18 38%,#bd7e3410 62%,transparent 88%);filter:blur(10px);opacity:.94;-webkit-mask-image:radial-gradient(ellipse 43% 110% at 50% 0%,#000 0 46%,#000b 65%,transparent 94%);mask-image:radial-gradient(ellipse 43% 110% at 50% 0%,#000 0 46%,#000b 65%,transparent 94%)}
+    [data-theme="night"] .room-light:before,[data-theme="night"] .room-light:after{content:"";position:absolute;inset:0;pointer-events:none;transform-origin:50% 0;mix-blend-mode:screen}
+    [data-theme="night"] .room-light:before{background:conic-gradient(from 176deg at 50% 1%,transparent 0 2deg,#ffd58b16 4deg,#ffe6b128 7deg,#e6ad5711 11deg,transparent 15deg 345deg,#e6ad5711 349deg,#ffe6b128 353deg,#ffd58b16 356deg,transparent 358deg);filter:blur(24px);animation:light-breathe 7s ease-in-out infinite alternate}
+    [data-theme="night"] .room-light:after{inset:2vh 17vw 0;background:radial-gradient(ellipse 24% 95% at 48% 0%,#ffe1a21d,transparent 72%),radial-gradient(ellipse 18% 88% at 55% 0%,#f0b75d12,transparent 78%);filter:blur(34px);animation:light-drift 11s ease-in-out infinite alternate}
+    [data-theme="night"] .page:before{content:"";position:fixed;z-index:2;pointer-events:none;top:-12px;left:calc(50% - 54px);width:108px;height:19px;border-radius:50%;background:radial-gradient(ellipse,#fff7dc 0%,#ffe0a4 28%,#e7ad5c52 62%,transparent 76%);box-shadow:0 5px 30px 13px #ffd4854d,0 22px 110px 40px #ffc8761c;filter:blur(.6px)}
+    [data-theme="night"] .page:after{content:"";position:fixed;z-index:3;pointer-events:none;inset:0;background-image:radial-gradient(circle at 17% 26%,#c8c1b58a 0 1px,transparent 1.7px),radial-gradient(circle at 73% 18%,#bbb3a670 0 .8px,transparent 1.6px),radial-gradient(circle at 42% 44%,#d0c8ba66 0 .7px,transparent 1.5px),radial-gradient(circle at 67% 63%,#aaa39755 0 .9px,transparent 1.8px),radial-gradient(circle at 29% 76%,#c4bcae5c 0 .65px,transparent 1.4px);background-size:173px 191px,229px 211px,137px 167px,263px 239px,197px 223px;opacity:.45;filter:blur(.15px);animation:dust-float 18s linear infinite}
+    @keyframes light-breathe{0%{opacity:.72;transform:scaleX(.96) rotate(-.25deg)}100%{opacity:1;transform:scaleX(1.04) rotate(.3deg)}}
+    @keyframes light-drift{0%{transform:translate3d(-1.2%,0,0) scaleX(.96);opacity:.68}100%{transform:translate3d(1.4%,1%,0) scaleX(1.04);opacity:1}}
+    @keyframes dust-float{0%{background-position:0 0,0 0,0 0,0 0,0 0}50%{background-position:9px -22px,-13px -17px,7px -28px,-8px -15px,13px -24px}100%{background-position:18px -44px,-26px -34px,14px -56px,-16px -30px,26px -48px}}
     [data-theme="night"] .front:before{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;border-radius:inherit;background:radial-gradient(ellipse 100% 78% at var(--light-x,50%) 0%,#ffe0a733 0%,#4d352b44 45%,#080b10c9 100%);mix-blend-mode:multiply}
     [data-theme="night"] .front:after{border-color:#544d4033;box-shadow:inset 0 3px 6px #ffe3a952,inset 0 -8px 16px #000a}
     [data-theme="night"] .back{background-color:#4b4437;background-image:linear-gradient(180deg,#8b7b5d,#34332e 80%);border-color:#554c3a}
@@ -151,6 +160,7 @@
     [data-theme="night"] .track-option:hover,[data-theme="night"] .track-option[aria-checked="true"]{background:#494a35;color:#f0e5bb}
     [data-theme="night"] .status,[data-theme="night"] .status strong{color:#baad90}[data-theme="night"] .status kbd{background:#302c24;color:#d5c7a6;border-color:#756346}
     [data-theme="night"] .shadow:before,[data-theme="night"] .shadow:after{background:#000}
+    @media(prefers-reduced-motion:reduce){[data-theme="night"] .room-light:before,[data-theme="night"] .room-light:after,[data-theme="night"] .page:after{animation:none}button.fx-press{animation:none}}
 
   </style>
 </head>
@@ -193,7 +203,7 @@
   </aside>
   </main>
   <canvas id="click-fx" aria-hidden="true"></canvas>
-  <script src="assets/experience.js?v=night-light-1"></script>
+  <script src="assets/experience.js?v=night-light-2"></script>
   <script>
   (()=>{
     'use strict';
