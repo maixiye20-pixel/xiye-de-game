@@ -25,6 +25,9 @@ window.createExperience = function (shapes, reducedMotion) {
       melody:[[76,null,79,null,83,null,null,81],[79,null,null,76,null,74,null,null],[71,null,74,null,78,null,79,null],[78,null,null,null,74,null,null,null],[83,null,86,null,null,83,81,null],[79,null,null,78,76,null,74,null],[71,null,74,null,76,null,78,null],[76,null,null,null,null,null,null,null]],
       chords:[[40,47,55,59],[43,50,57,62],[45,52,59,64],[47,54,59,62]] }
   ];
+  tracks.push({id:'spring',name:'05 · LANTERN SPRING',mood:'灯泉微梦 · 原创琶音与电子钟音',bpm:72,beats:6,wave:'triangle',
+    melody:[[81,null,76,79,null,84],[83,79,null,76,74,null],[77,null,81,86,null,84],[79,76,null,72,null,null],[74,79,null,83,86,null],[84,null,81,77,79,null],[76,null,79,83,81,74],[76,72,null,69,null,null]],
+    chords:[[41,48,57,64],[45,52,60,67],[43,50,59,65],[48,55,62,69]]});
   let selected = tracks.find(t => t.id === read('xiye-track','field')) || tracks[0];
   let musicOn=read('xiye-music','on')!=='off', sfxOn=read('xiye-sfx','on')!=='off';
   let audio, master, musicBus, sfxBus, pending, unlocking=false, nextNote=0, step=0;
@@ -105,7 +108,7 @@ window.createExperience = function (shapes, reducedMotion) {
       const play=(n,delay,dur,wave,vol,pan=0)=>tone(n,nextNote+delay,dur,wave,vol,musicBus,null,'music',pan);
       if(note!==null){play(note,0,t.id==='grove'?.18:.65,t.wave,t.wave==='square'?.065:.16,-.15);if(t.id!=='grove')play(note+12,.12,.5,'triangle',.025,.35);}
       if(beat===0||beat===(t.beats===6?3:4))play(chord[0],0,unit*3.5,'triangle',.18);
-      if(t.id==='sky'||beat%2===0)play(chord[1+beat%3]+12,0,t.id==='sky'?.85:.35,'triangle',.065,.25);
+      if(t.id==='sky'||t.id==='spring'||beat%2===0)play(chord[1+beat%3]+12,0,t.id==='sky'?.85:.35,'triangle',.065,.25);
       if(t.id==='grove'&&(beat===0||beat===3))tone(42,nextNote,.055,'triangle',.12,musicBus,25,'music');
       step=(step+1)%(t.melody.length*t.beats);nextNote+=unit;
     }
@@ -128,7 +131,15 @@ window.createExperience = function (shapes, reducedMotion) {
   const {Engine,Bodies,Body,Composite,Events,Sleeping}=Matter;
   const engine=Engine.create({enableSleeping:true,positionIterations:8,velocityIterations:8});
   let width=innerWidth,height=innerHeight,accumulator=0,clock=0,walls=[];
-  const HOLD=12,FADE=1.2,LIMIT=100,H=1000/120;
+  const HOLD=12,FADE=1.2,LIMIT=24,H=1000/120;
+  let effectsOn=read('xiye-effects','on')!=='off',lastBurst=-Infinity;
+  const fxButton=document.createElement('button');fxButton.id='fx-toggle';fxButton.type='button';fxButton.className='sound-toggle';musicButton.parentElement.append(fxButton);
+  function syncEffects(){fxButton.textContent=effectsOn?'掉落：开':'掉落：关';fxButton.setAttribute('aria-pressed',String(effectsOn));fxButton.setAttribute('aria-label',effectsOn?'关闭方块掉落特效':'开启方块掉落特效');}
+  fxButton.addEventListener('click',()=>{effectsOn=!effectsOn;save('xiye-effects',effectsOn?'on':'off');if(!effectsOn){for(const p of particles)Composite.remove(engine.world,p.body);particles.length=0;ctx.clearRect(0,0,width,height);}syncEffects();});syncEffects();
+  const nightButton=document.createElement('button');nightButton.id='night-toggle';nightButton.type='button';nightButton.className='sound-toggle';musicButton.parentElement.append(nightButton);
+  let night=read('xiye-night','off')==='on';
+  function syncNight(){document.documentElement.dataset.theme=night?'night':'day';nightButton.textContent=night?'夜晚：开':'夜晚：关';nightButton.setAttribute('aria-pressed',String(night));nightButton.setAttribute('aria-label',night?'切换白天模式':'切换夜晚模式');const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.content=night?'#100f0e':'#f7f7f5';}
+  nightButton.addEventListener('click',()=>{night=!night;save('xiye-night',night?'on':'off');syncNight();playSfx('switch','menu');});syncNight();
   let motionOn=false,lastSensor=0,targetX=0,targetY=1;
   const motionButton=document.createElement('button');motionButton.type='button';motionButton.className='sound-toggle';motionButton.textContent='重力感应';motionButton.setAttribute('aria-pressed','false');musicButton.parentElement.append(motionButton);
   const motionNote=document.createElement('span');motionNote.className='motion-note';motionNote.setAttribute('role','status');musicButton.parentElement.append(motionNote);
@@ -163,10 +174,10 @@ window.createExperience = function (shapes, reducedMotion) {
   }
   addEventListener('resize',resize,{passive:true});resize();
   function burst(x,y){
-    if(reducedMotion.matches)return;
-    const count=Math.min(3+Math.floor(Math.random()*2),LIMIT-particles.length);
+    if(!effectsOn||reducedMotion.matches||performance.now()-lastBurst<180)return;lastBurst=performance.now();
+    const count=Math.min(1,LIMIT-particles.length);
     for(let i=0;i<count;i++){
-      const shape=shapes[Math.floor(Math.random()*shapes.length)],size=6+Math.floor(Math.random()*3),parts=[];
+      const shape=shapes[Math.floor(Math.random()*shapes.length)],size=5+Math.floor(Math.random()*2),parts=[];
       shape.forEach((row,r)=>row.forEach((v,c)=>{if(v)parts.push(Bodies.rectangle(c*size,r*size,size,size));}));
       const body=Body.create({parts,friction:.55,frictionStatic:.85,frictionAir:.012,restitution:.26,sleepThreshold:70});
       Body.setPosition(body,{x:Math.max(24,Math.min(width-24,x+(i-count/2)*24)),y:Math.max(24,Math.min(height-24,y))});Body.setAngle(body,(Math.random()-.5)*.5);
@@ -181,7 +192,7 @@ window.createExperience = function (shapes, reducedMotion) {
   });
   function drawParticles(dt){
     ctx.clearRect(0,0,width,height);if(document.hidden)return;
-    if(reducedMotion.matches){for(const p of particles)Composite.remove(engine.world,p.body);particles.length=0;return;}
+    if(!effectsOn||reducedMotion.matches){for(const p of particles)Composite.remove(engine.world,p.body);particles.length=0;return;}
     const elapsed=Math.min(50,Math.max(0,dt));clock+=elapsed/1000;accumulator+=elapsed;
     if(motionOn&&performance.now()-lastSensor>1500){targetX=0;targetY=1;}
     while(accumulator>=H){
@@ -198,10 +209,12 @@ window.createExperience = function (shapes, reducedMotion) {
       }ctx.restore();
     }
     if(removed)for(const p of particles)Sleeping.set(p.body,false);
+    // Clear visual overlays from gameplay targets; the rigid bodies remain in the world.
+    document.querySelectorAll('.control-dock,.sound-controls,.screen-wrap,.modes').forEach(el=>{const r=el.getBoundingClientRect();ctx.clearRect(r.left-4,r.top-4,r.width+8,r.height+8);});
     canvas.dataset.particles=String(particles.length);canvas.dataset.settled=String(particles.filter(p=>p.body.isSleeping).length);
   }
   document.addEventListener('pointerdown',e=>{
-    if(e.button!==0)return;unlockAudio();
+    if(e.button!==0)return;unlockAudio();if(e.target.closest('.sound-controls'))return;
     if(e.target.closest('button')){burst(e.clientX,e.clientY);if(e.target.closest('[data-mode]'))playSfx('mode','menu');}
     else taps.set(e.pointerId,{x:e.clientX,y:e.clientY});
   },{capture:true});
